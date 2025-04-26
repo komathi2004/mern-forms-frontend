@@ -4,7 +4,7 @@ import { Bar, Pie } from "react-chartjs-2";
 import { Spin } from "antd";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from "chart.js";
 
-const BE_URL = "https://mern-forms-be.onrender.com";
+const BE_URL = "https://mern-form-backend-4.onrender.com/";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
