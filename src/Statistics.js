@@ -4,7 +4,7 @@ import { Bar, Pie } from "react-chartjs-2";
 import { Spin } from "antd";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from "chart.js";
 
-const BE_URL = "https://mern-form-backend-4.onrender.com/";
+const BE_URL = "https://mern-form-ouw0.onrender.com";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
@@ -15,15 +15,25 @@ const Statistics = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`${BE_URL}/users`);
-                setUsers(response.data.users);
+                const response = await axios.get(`${BE_URL}/api/forms`);
+                // Transform the data to match what your charts expect
+                const transformedData = response.data.map(form => {
+                    const userData = {};
+                    form.fields.forEach(field => {
+                        userData[field.id] = field.value || 
+                            (field.options && field.selectedOptions ? 
+                            field.options[field.selectedOptions[0]] : '');
+                    });
+                    return userData;
+                });
+                setUsers(transformedData);
             } catch (error) {
                 console.error("Error Fetching Users:", error);
             } finally {
                 setLoading(false);
             }
         };
-
+        
         fetchData();
     }, []);
 

@@ -4,24 +4,75 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
-const BE_URL = " 10.12.8.17"//"https://localhost:8000";
-message.config({
-    top: window.innerHeight - 80,
-    duration: 2,
-    maxCount: 3,
-});
+const BE_URL = "https://mern-form-ouw0.onrender.com";
 
 const FormComponent = () => {
     const navigate = useNavigate();
-
+    
     const onFinish = async (values) => {
         try {
-            await axios.post(`${BE_URL}/submit`, values);
+            // Transform the form data to match the backend schema
+            const formattedData = {
+                title: "User Details",
+                fields: [
+                    {
+                        id: "name",
+                        type: "text",
+                        label: "Name",
+                        options: [],
+                        selectedOptions: [],
+                        value: values.name
+                    },
+                    {
+                        id: "dob",
+                        type: "text",
+                        label: "Birth Date",
+                        options: [],
+                        selectedOptions: [],
+                        value: values.dob ? values.dob.format('YYYY-MM-DD') : ''
+                    },
+                    {
+                        id: "gender",
+                        type: "radio",
+                        label: "Gender",
+                        options: ["Male", "Female", "Other"],
+                        selectedOptions: values.gender === "Male" ? [0] : values.gender === "Female" ? [1] : [2]
+                    },
+                    {
+                        id: "email",
+                        type: "email",
+                        label: "Email",
+                        options: [],
+                        selectedOptions: [],
+                        value: values.email
+                    },
+                    {
+                        id: "location",
+                        type: "text",
+                        label: "Location",
+                        options: ["India", "United States", "China", "Russia"],
+                        selectedOptions: values.location === "India" ? [0] : 
+                                         values.location === "United States" ? [1] : 
+                                         values.location === "China" ? [2] : [3]
+                    }
+                ]
+            };
+            
+            console.log("Sending data:", formattedData);
+            
+            const response = await axios.post(`${BE_URL}/api/forms`, formattedData);
+            console.log("Response:", response.data);
+            
+            // Use the global message API to show success
             message.success("Response Submitted Successfully");
-            navigate("/about");
+            // Add a small delay before navigating to ensure message is seen
+            setTimeout(() => {
+                navigate("/about");
+            }, 1000);
         } catch (error) {
+            console.error("Error:", error);
+            // Display error message
             message.error(error.response?.data?.message || "Failed To Submit The Form");
-          // message.error("Failed To Submit The Form");
         }
     };
 
@@ -40,7 +91,7 @@ const FormComponent = () => {
                 >
                     <Input placeholder="Enter Your Name" />
                 </Form.Item>
-
+                
                 <Form.Item
                     label="Birth Date"
                     name="dob"
@@ -48,7 +99,7 @@ const FormComponent = () => {
                 >
                     <DatePicker style={{ width: "100%" }} />
                 </Form.Item>
-
+                
                 <Form.Item
                     label="Gender"
                     name="gender"
@@ -60,7 +111,7 @@ const FormComponent = () => {
                         <Radio value="Other">Other</Radio>
                     </Radio.Group>
                 </Form.Item>
-
+                
                 <Form.Item
                     label="Email"
                     name="email"
@@ -71,7 +122,7 @@ const FormComponent = () => {
                 >
                     <Input placeholder="Enter Your Email" />
                 </Form.Item>
-
+                
                 <Form.Item
                     label="Location"
                     name="location"
@@ -84,7 +135,7 @@ const FormComponent = () => {
                         <Option value="Russia">Russia</Option>
                     </Select>
                 </Form.Item>
-
+                
                 <Form.Item>
                     <Button type="primary" htmlType="submit" block>
                         Submit

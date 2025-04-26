@@ -3,7 +3,7 @@ import axios from "axios";
 import { Spin, message } from "antd";
 import AccordionComponent from "./components/AccordionComponent";
 
-const BE_URL = "https://mern-forms-be.onrender.com";
+const BE_URL = "https://mern-form-ouw0.onrender.com";
 
 const About = () => {
     const [users, setUsers] = useState([]);
@@ -12,8 +12,18 @@ const About = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`${BE_URL}/users`);
-                setUsers(response.data.users);
+                const response = await axios.get(`${BE_URL}/api/forms`);
+                // Transform the data to match what your AccordionComponent expects
+                const transformedData = response.data.map(form => {
+                    const userData = { _id: form._id };
+                    form.fields.forEach(field => {
+                        userData[field.id] = field.value || 
+                            (field.options && field.selectedOptions && field.selectedOptions.length > 0 ? 
+                            field.options[field.selectedOptions[0]] : '');
+                    });
+                    return userData;
+                });
+                setUsers(transformedData);
             } catch (error) {
                 console.error("Error Fetching Users : ", error);
             } finally {
@@ -26,7 +36,7 @@ const About = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${BE_URL}/users/${id}`);
+            await axios.delete(`${BE_URL}/api/forms/${id}`);
             setUsers(users.filter(user => user._id !== id));
             message.success("User Deleted Successfully");
         } catch (error) {
